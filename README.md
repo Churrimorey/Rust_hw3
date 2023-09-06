@@ -4,7 +4,9 @@
 
 ## MyRc
 
-由于涉及到多个变量对同一值的所有权，因此需要引入指针来实现相关功能。具体地，通过`Box::into_raw()`实现指针的操作，因为涉及到`raw pointer`，是`unsafe Rust`的语法，相关操作需要在`unsafe{}`块中实现。
+由于涉及到多个变量对同一值的所有权，因此需要引入指针来实现相关功能，如此可以实现较全面的功能——其中一个有相应所有权的变量离开作用域后所有具有所有权的变量的`strong_count`都会减一（具体见`my_rc/main.rs`中的测试）。
+
+具体地，通过`Box::into_raw()`实现指针的操作，因为涉及到`raw pointer`，是`unsafe Rust`的语法，相关操作需要在`unsafe{}`块中实现。
 
 ```rust
 pub struct MyRc<T> {
@@ -89,4 +91,12 @@ impl<T> Clone for MyRc<T> {
     }
 }
 ```
+
+------
+
+## MyRc_without_pointer
+
+- 比起使用裸指针的实现，对`strong_count`的修改不同步，即修改的不是一个值，测试代码有变。
+- 利用`RefCell`实现，因为`Clone trait`对应的`fn clone(&self)->Self`的参数不可变，但要实现`strong_count`成员变量加一操作
+- 对应的变量要求有`Clone trait`，因为`Clone trait`对应的`fn clone(&self)->Self`的参数是引用，返回所有权
 
